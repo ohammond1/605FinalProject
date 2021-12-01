@@ -1,0 +1,2 @@
+require(sentimentr)
+require(tidyverse)
