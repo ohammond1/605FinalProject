@@ -14,4 +14,4 @@ export R_LIBS=$PWD/packages
 
 #tar -xf "${fname}.tgz"
 
-Rscript wsb_test.R
+Rscript SentimentCode.R $1
