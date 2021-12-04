@@ -24,3 +24,4 @@ by_date <- by_date %>% mutate(magnitude = abs(sentiment))
 plot <- ggplot( by_date, aes(day, sentiment, color = factor, size = magnitude, alpha = magnitude )) + geom_point()
 
 plot
+
