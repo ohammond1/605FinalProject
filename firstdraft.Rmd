@@ -1,0 +1,36 @@
+---
+title: "Analyzing r/wallstreetbets Sentiment"
+author: "Oliver Hammond, Jake Reiners, Marit McQuaig"
+date: "12/6/2021"
+output: html_document
+---
+
+### Overview
+
+WallStreetBets is a subreddit on the website “Reddit”. This subreddit is a forum for discussing the stock market with other (amateur) investors. While the users of the subreddit do invest money the tone of the subreddit is casual and oftentimes paradoxical. Despite this laid-back approach to investing, the overall sentiment of the subreddit does seem influenced by the stock market. This subreddit has had an impact on the stock market as well; the beginning of the GameStop short squeeze in January 2021 has been attributed to users of r/wallstreetbets (Zweig). In our project we want to investigate the daily sentiment of the WallStreetBets subreddit based on the posted comments each day. We will analyze the sentiment between the beginning of the subreddit on January 31st, 2012. until February 16th, 2021. After finding the daily sentiment of the subreddit we will correlate it with the performance of major stocks such as the S&P 500 ($SPY).
+
+### Dataset
+
+We used two datasets, both formatted similarly. They can be found at https://www.kaggle.com/mattpodolak/reddit-wallstreetbets-comments and https://www.kaggle.com/mattpodolak/rwallstreetbets-posts-and-comments. The first dataset contains 34 million rows with the first comment occurring on January 31st, 2012 and the most recent comment on February 16th, 2021. The last third of the original dataset was corrupted to the point that we couldn’t read it in, so we used the second dataset, which spans from December 2020 to February 2021 to partially fill in that gap. We focused on two variables for our analysis:
+
+**Body:** Text of each reddit comment
+
+**Created UTC:** Date-time of posting since the epoch of Linux-Bash in seconds
+
+
+### Preprocessing and Parellelization
+
+### Computation
+
+### Analysis
+
+### Preliminary Results
+
+
+
+### GitHub Link
+
+https://github.com/ohammond1/605FinalProject
+
+
+
