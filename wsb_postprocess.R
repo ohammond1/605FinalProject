@@ -1,5 +1,6 @@
 library(ggplot2)
 library(dplyr)
+library(gridExtra)
 
 hist.spy.df <- read.csv("/Users/ohammond/Documents/605/605FinalProject/HistoricalPrices.csv")
 hist.spy.df$Date <- as.Date(hist.spy.df$Date, "%m/%d/%y")
@@ -39,7 +40,10 @@ prior_spy$Date <- prior5_spy$Date - 5
 combinedprior.df <- merge(wsb.agg.df,prior_spy, by.x="day",by.y="Date")
 cor(combinedprior.df$avg_sent,combinedprior.df$differential)
 
-# Create Plots broken up to better see comparison
+# See correlation of close and cumulative average sentiment
+cor(combined.df$avgsent_cumsum,combined.df$Close)
+
+  # Create Plots broken up to better see comparison
 ggplot(combined.df, aes(x=day)) +
   geom_line(aes(y=avg_sent, color='Sentiment')) +
   geom_line(aes(y=differential / 290, color='Differential')) + 
