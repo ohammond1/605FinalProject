@@ -31,16 +31,21 @@ Each job also outputs the number of comments for each day in the file process. A
 
 
 ### Analysis
+Once the computations completed, we graphed the daily average sentiment against the daily changes in the SPY stock. We used the daily change because we are more interested in understanding the relationship between reddit sentiment and the change of the stock rather than the absolute value. 
 
+The two ways we want to look at the overall sentiment of the WallStreetBets subreddit is by finding the sum and the average of the sentiment each day.  The average allows comparison between  days because the total number of comments will not change the potential values of the mean and it will fall between -1 and 1. The sum allows us to look at the subreddit from a different angle: eventful days in the stock market may be reflected by a much larger volume of comments than is typical.
 
 ### Results
+
+When comparing the average cumulative sentiment of the subreddit with the SPY closing value, there is a slight correlation (correlation coefficient of 0.514). Clearly, r/wallstreetbets users picked up on major peaks and drops in the market, but that was about it. It also appears that the sentiment on the "front page of the internet" takes a little bit longer to recover after a dip than the actual market does. 
 
 ```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(dplyr)
 library(gridExtra)
+library(ggpubr)
 
-hist.spy.df <- read.csv("/Users/ohammond/Documents/605/605FinalProject/HistoricalPrices.csv")
+hist.spy.df <- read.csv("HistoricalPrices.csv")
 hist.spy.df$Date <- as.Date(hist.spy.df$Date, "%m/%d/%y")
 
 hist.spy.df<-hist.spy.df[nrow(hist.spy.df):1,]
@@ -50,7 +55,7 @@ close.diff <- diff(as.matrix(hist.spy.df$Close))
 close.diff <- rbind(0,close.diff)
 hist.spy.df$differential <- close.diff[,1]
 
-wsb.sent.df <- read.csv("/Users/ohammond/Documents/605/605FinalProject/combined_sentiment.csv")
+wsb.sent.df <- read.csv("combined_sentiment.csv")
 wsb.sent.df$total_sent <- wsb.sent.df$ave_sentiment * wsb.sent.df$day_count
 wsb.agg.df <- aggregate(cbind(total_sent, day_count) ~ day, wsb.sent.df, FUN=sum)
 wsb.agg.df$day <- as.Date(wsb.agg.df$day)
@@ -74,52 +79,59 @@ ggplot(combined.df, aes(x=day)) +
   ggtitle("Cumulative Average Sentiment of WSB with SPY Closing Value") +
   theme(legend.position = c(0.8,0.2))
 
-ggplot(combined.df, aes(x=day)) +
-  geom_line(aes(y=avg_sent, color='Sentiment')) +
-  geom_line(aes(y=differential / 290, color='Differential')) + 
-  scale_y_continuous(name="r/wallstreebets Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
+```
+
+Due to the issues with the original dataset, we had some gaps over certain dates in our dataset. We were able to use data at four different time periods, each with its own graph below. Our results didn't indicate a strong correlation between the r/wallstreetbets comments and the S&P daily differential. There are several reasons this could be the case: 
+ 
+* This is an open forum on the internet where anyone can say anything they want, whether they pay attention to and/or are knowledgable about the stock market.
+* There's plenty of sarcasm, emojis, and other slang used in comments that could've made sentiment analysis performed by a machine unreliable.
+
+```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+plot1 <- ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avg_sent, color='Sentiment'), alpha = .6) +
+  geom_line(aes(y=differential / 290, color='Differential'), alpha = .6) + 
+  scale_y_continuous(name="Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
   xlab("Date") +
-  ggtitle("Average Daily WSB Sentiment Compared to SPY Daily Change") + 
   scale_color_manual("Plot Lines",values = c("Sentiment"="red2","Differential"="blue2")) +
-  scale_x_date(date_breaks = "2 month",
+  scale_x_date(date_breaks = "3 month",
                limits = as.Date(c('2020-07-01','2021-02-16'))) +
   theme(legend.position = c(0.12,0.85))
   
  
-ggplot(combined.df, aes(x=day)) +
-  geom_line(aes(y=avg_sent, color='Sentiment')) +
-  geom_line(aes(y=differential / 290, color='Differential')) + 
-  scale_y_continuous(name="r/wallstreebets Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
+plot2 <- ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avg_sent, color='Sentiment'), alpha = .6) +
+  geom_line(aes(y=differential / 290, color='Differential'), alpha = .6) + 
+  scale_y_continuous(name="Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
   xlab("Date") +
-  ggtitle("Average Daily WSB Sentiment Compared to SPY Daily Change") + 
   scale_color_manual("Plot Lines",values = c("Sentiment"="red2","Differential"="blue2")) +
   scale_x_date(date_breaks = "2 month",
                limits = as.Date(c('2020-01-01','2020-07-01'))) +
   theme(legend.position = c(0.12,0.85))
 
 
-ggplot(combined.df, aes(x=day)) +
-  geom_line(aes(y=avg_sent, color='Sentiment')) +
-  geom_line(aes(y=differential / 290, color='Differential')) + 
-  scale_y_continuous(name="r/wallstreebets Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
+plot3 <- ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avg_sent, color='Sentiment'), alpha = .6) +
+  geom_line(aes(y=differential / 290, color='Differential'), alpha = .6) + 
+  scale_y_continuous(name="Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
   xlab("Date") +
-  ggtitle("Average Daily WSB Sentiment Compared to SPY Daily Change") + 
   scale_color_manual("Plot Lines",values = c("Sentiment"="red2","Differential"="blue2")) +
   scale_x_date(date_breaks = "2 month",
                limits = as.Date(c('2019-07-01','2020-01-01'))) +
   theme(legend.position = c(0.12,0.85))
 
 
-ggplot(combined.df, aes(x=day)) +
-  geom_line(aes(y=avg_sent, color='Sentiment')) +
-  geom_line(aes(y=differential / 290, color='Differential')) + 
-  scale_y_continuous(name="r/wallstreebets Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
+plot4 <- ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avg_sent, color='Sentiment'), alpha = .6) +
+  geom_line(aes(y=differential / 290, color='Differential'), alpha = .6) + 
+  scale_y_continuous(name="Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
   xlab("Date") +
-  ggtitle("Average Daily WSB Sentiment Compared to SPY Daily Change") + 
   scale_color_manual("Plot Lines",values = c("Sentiment"="red2","Differential"="blue2")) +
   scale_x_date(date_breaks = "2 month",
                limits = as.Date(c('2019-02-19','2019-07-01'))) +
   theme(legend.position = c(0.12,0.85))
+
+plot <- ggarrange(plot1,plot2,plot3,plot4,ncol=2,nrow = 2,common.legend=TRUE, legend="bottom")
+annotate_figure(plot, top = text_grob("Average Daily WSB Sentiment Compared to SPY Daily Change at Four Time Periods"))
 ```
 
 
