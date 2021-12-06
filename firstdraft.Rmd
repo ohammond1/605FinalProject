@@ -7,7 +7,7 @@ output: html_document
 
 ### Overview
 
-WallStreetBets is a subreddit on the website “Reddit”. This subreddit is a forum for discussing the stock market with other (amateur) investors. While the users of the subreddit do invest money the tone of the subreddit is casual and oftentimes paradoxical. Despite this laid-back approach to investing, the overall sentiment of the subreddit does seem influenced by the stock market. This subreddit has had an impact on the stock market as well; the beginning of the GameStop short squeeze in January 2021 has been attributed to users of r/wallstreetbets (Zweig). In our project we want to investigate the daily sentiment of the WallStreetBets subreddit based on the posted comments each day. We will analyze the sentiment between the beginning of the subreddit on January 31st, 2012. until February 16th, 2021. After finding the daily sentiment of the subreddit we will correlate it with the performance of major stocks such as the S&P 500 ($SPY).
+[WallStreetBets](https://www.reddit.com/r/wallstreetbets/), a subreddit on the website “Reddit,” is a casual (and often vulgar) forum for users to discuss the stock market with other amateur investors. Despite this laid-back approach to investing, the overall sentiment of the subreddit does seem influenced by the stock market. This subreddit has had an impact on the stock market as well; the beginning of the [GameStop short squeeze](https://www.google.com/url?q=https://archive.ph/20210130144720/https://www.wsj.com/articles/the-real-force-driving-the-gamestop-amc-blackberry-revolution-11611965586&sa=D&source=docs&ust=1638811083813000&usg=AOvVaw3g-nI4WeAOEJJgYNKBot75) in January 2021 has been attributed to users of r/wallstreetbets. In our project we want to investigate the daily sentiment of the WallStreetBets subreddit based on the posted comments each day. We analyzed the sentiment of the subreddit from February 19th, 2019 until February 16th, 2021. After finding the daily sentiment of the subreddit we compared it to the performance of the S&P 500 ($SPY).
 
 ### Dataset
 
@@ -20,7 +20,15 @@ We used two datasets, both formatted similarly. They can be found at https://www
 
 ### Preprocessing and Parellelization
 
+Due to  size and sentiment analysis run time the data is preprocessed and analyzed in parallel before being aggregated. We split the first dataset into 34 files of 1 million lines and the second dataset into 10 files of 1 million lines. Due to unresolvable parsing issues with the original kaggle dataset, 11 chunks (~11 million comments) of the first dataset were unusable. Since bash has difficulty reading csvs containing natural language, we conducted the data splitting in Python. 
+After splitting, each of these files ran in an individual job on the CHTC. Since the dataset is not sorted by date in the original dataset, comments from the same day are spread across multiple files. Due to size and time restraints, we did not sort the dataset by date before splitting and instead handled this problem in the post processing portion of the pipeline.
+
+
 ### Computation
+
+The R library sentimentr was utilized to find the average sentiment of comments each day. The jobs used the sentiment analysis library to score each comment from -1 to 1, ranging from strongly negative to strongly positive, and then return the average sentiment for each day.
+Each job also outputs the number of comments for each day in the file process. As mentioned earlier, comments for a specific date can be spread over multiple files. A weighted average was used to combine values from different files. The final aggregated output is a single file with a row per date containing the average sentiment.
+
 
 ### Analysis
 
@@ -28,9 +36,8 @@ We used two datasets, both formatted similarly. They can be found at https://www
 
 
 
-### GitHub Link
+#### [GitHub Link](https://github.com/ohammond1/605FinalProject)
 
-https://github.com/ohammond1/605FinalProject
 
 
 
