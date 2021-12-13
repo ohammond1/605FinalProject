@@ -1,0 +1,6 @@
+job 1 wsb.sub
+job 2 agg_wsb.sub
+
+script post 1 wsb_combine.sh
+
+parent 1 child 2
