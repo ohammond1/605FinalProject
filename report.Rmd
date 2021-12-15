@@ -1,0 +1,145 @@
+---
+title: "Analyzing r/wallstreetbets Sentiment"
+author: "Oliver Hammond, Jake Reiners, Marit McQuaig"
+date: "12/15/2021"
+output: html_document
+---
+
+### Overview
+
+[WallStreetBets](https://www.reddit.com/r/wallstreetbets/), a subreddit on the website “Reddit,” is a casual (and often vulgar) forum for users to discuss the stock market with other amateur investors. Despite this laid-back approach to investing, the overall sentiment of the subreddit does seem influenced by the stock market. This subreddit has had an impact on the stock market as well; the beginning of the [GameStop short squeeze](https://www.google.com/url?q=https://archive.ph/20210130144720/https://www.wsj.com/articles/the-real-force-driving-the-gamestop-amc-blackberry-revolution-11611965586&sa=D&source=docs&ust=1638811083813000&usg=AOvVaw3g-nI4WeAOEJJgYNKBot75) in January 2021 has been attributed to users of r/wallstreetbets. In our project we want to investigate the daily sentiment of the WallStreetBets subreddit based on the posted comments each day. We analyzed the sentiment of the subreddit from February 19th, 2019 until February 16th, 2021. After finding the daily sentiment of the subreddit we compared it to the performance of $SPY, a fund that includes the same 500 stocks on the S&P 500 in the same proportions as the S&P. Unfortunately, we did not find any correlation between the daily changes of SPY and the average sentiment of r/wallstreetbets.
+
+### Dataset
+
+We used two datasets, both formatted similarly. They can be found at https://www.kaggle.com/mattpodolak/reddit-wallstreetbets-comments and https://www.kaggle.com/mattpodolak/rwallstreetbets-posts-and-comments. The first dataset contains 34 million rows with the first comment occurring on January 31st, 2012 and the most recent comment on February 16th, 2021. The last third of the original dataset was corrupted to the point that we couldn’t read it in, so we used the second dataset, which spans from December 2020 to February 2021 to partially fill in that gap. We focused on two variables for our analysis:
+
+**Body:** Text of each reddit comment
+
+**Created UTC:** Date-time of posting since the epoch of Linux-Bash in seconds
+
+Our SPY historical values came from [The Wall Street Journal](https://www.wsj.com/).
+
+### Preprocessing and Parallelization
+
+Due to the dataset size, we needed to use the CHTC to run parellel preprocessing and analysis jobs in parallel. We split the first dataset into 34 files of 1 million lines and the second dataset into 10 files of 1 million lines. Due to parsing issues with the original dataset, 11 chunks (~11 million comments) of the first dataset were unusable. Since bash has difficulty reading csvs containing natural language, we conducted the data splitting in Python. 
+
+After splitting, each of these files ran in an individual job on the CHTC. We ran 33 jobs in total, each requesting 7GB of memory and 1.5GB of disk space from the CHTC.
+
+
+### Computation
+
+The R library sentimentr was utilized to find the average sentiment of comments each day. The jobs used the sentiment analysis library to score each comment from -1 to 1, ranging from strongly negative to strongly positive, and then return the average sentiment for each day.
+
+Since comments from the same day are spread across multiple files, we kept track of not only the average sentiment for each day but the number of times that date appeared in each dataset in order to calculate a weighted average. After processing on the CHTC, we aggregated the results and calculated the average sentiment for each day.
+
+### Analysis
+Once the computations completed, we graphed the daily average sentiment against the daily changes in the SPY stock to look for a relationship. We also compared the cumulative sentiment to the daily closing values of the S&P to see if the community at r/wallstreetbets picked up on more general trends. 
+
+The two ways we want to look at the overall sentiment of the WallStreetBets subreddit is by finding the sum and the average of the sentiment each day.  The average allows comparison between  days because the total number of comments will not change the potential values of the mean and it will fall between -1 and 1. The sum allows us to look at the subreddit from a different angle: eventful days in the stock market may be reflected by a much larger volume of comments than is typical.
+
+### Results
+
+When comparing the average cumulative sentiment of the subreddit with the SPY closing value, there is a slight correlation (correlation coefficient of 0.514). Clearly, r/wallstreetbets users picked up on major peaks and drops in the market, but that was about it.
+
+```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(ggpubr)
+
+hist.spy.df <- read.csv("HistoricalPrices.csv")
+hist.spy.df$Date <- as.Date(hist.spy.df$Date, "%m/%d/%y")
+
+hist.spy.df<-hist.spy.df[nrow(hist.spy.df):1,]
+
+
+close.diff <- diff(as.matrix(hist.spy.df$Close))
+close.diff <- rbind(0,close.diff)
+hist.spy.df$differential <- close.diff[,1]
+
+wsb.sent.df <- read.csv("combined_sentiment.csv")
+wsb.sent.df$total_sent <- wsb.sent.df$ave_sentiment * wsb.sent.df$day_count
+wsb.agg.df <- aggregate(cbind(total_sent, day_count) ~ day, wsb.sent.df, FUN=sum)
+wsb.agg.df$day <- as.Date(wsb.agg.df$day)
+wsb.agg.df$avg_sent <- wsb.agg.df$total_sent/ wsb.agg.df$day_count
+
+wsb.agg.df <- wsb.agg.df[order(wsb.agg.df$day), ]
+combined.df <- merge(wsb.agg.df,hist.spy.df, by.x="day",by.y="Date")
+
+# Calculate Cumulative Sentiment
+combined.df$sent_cumsum <- cumsum(combined.df$total_sent)
+
+# Calculate cumulative average sentiment
+combined.df$avgsent_cumsum <- cumsum(combined.df$avg_sent)
+
+ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avgsent_cumsum, color='Avg Sent Sum')) +
+  geom_line(aes(y=Close / 129, color='SPY Close')) + 
+  scale_y_continuous(name="r/wallstreebets Average Cumulative Sentiment", sec.axis = sec_axis(~.*129,name="SPY $ Close")) +
+  xlab("Date") +
+  scale_color_manual("Plot Lines",values = c("Avg Sent Sum"="red2","SPY Close"="cyan3")) + 
+  ggtitle("Cumulative Average Sentiment of WSB with SPY Closing Value") +
+  theme(legend.position = c(0.8,0.2))
+
+```
+
+Due to the issues with the original dataset, we had some gaps over certain dates in our dataset. We were able to use data at four different time periods, each with its own graph below. Our results didn't indicate a strong correlation between the r/wallstreetbets comments and the S&P daily differential. There are several reasons this could be the case: 
+ 
+* This is an open forum on the internet where anyone can say anything they want, whether they pay attention to and/or are knowledgeable about the stock market.
+* There's plenty of sarcasm, emojis, and other slang used in comments that could've made sentiment analysis performed by a machine unreliable.
+
+```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
+plot1 <- ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avg_sent, color='Sentiment'), alpha = .6) +
+  geom_line(aes(y=differential / 290, color='Differential'), alpha = .6) + 
+  scale_y_continuous(name="Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
+  xlab("Date") +
+  scale_color_manual("Plot Lines",values = c("Sentiment"="red2","Differential"="blue2")) +
+  scale_x_date(date_breaks = "3 month",
+               limits = as.Date(c('2020-07-01','2021-02-16'))) +
+  theme(legend.position = c(0.12,0.85))
+  
+ 
+plot2 <- ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avg_sent, color='Sentiment'), alpha = .6) +
+  geom_line(aes(y=differential / 290, color='Differential'), alpha = .6) + 
+  scale_y_continuous(name="Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
+  xlab("Date") +
+  scale_color_manual("Plot Lines",values = c("Sentiment"="red2","Differential"="blue2")) +
+  scale_x_date(date_breaks = "2 month",
+               limits = as.Date(c('2020-01-01','2020-07-01'))) +
+  theme(legend.position = c(0.12,0.85))
+
+
+plot3 <- ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avg_sent, color='Sentiment'), alpha = .6) +
+  geom_line(aes(y=differential / 290, color='Differential'), alpha = .6) + 
+  scale_y_continuous(name="Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
+  xlab("Date") +
+  scale_color_manual("Plot Lines",values = c("Sentiment"="red2","Differential"="blue2")) +
+  scale_x_date(date_breaks = "2 month",
+               limits = as.Date(c('2019-07-01','2020-01-01'))) +
+  theme(legend.position = c(0.12,0.85))
+
+
+plot4 <- ggplot(combined.df, aes(x=day)) +
+  geom_line(aes(y=avg_sent, color='Sentiment'), alpha = .6) +
+  geom_line(aes(y=differential / 290, color='Differential'), alpha = .6) + 
+  scale_y_continuous(name="Average Sentiment", sec.axis = sec_axis(~.*290,name="SPY $ Differential")) +
+  xlab("Date") +
+  scale_color_manual("Plot Lines",values = c("Sentiment"="red2","Differential"="blue2")) +
+  scale_x_date(date_breaks = "2 month",
+               limits = as.Date(c('2019-02-19','2019-07-01'))) +
+  theme(legend.position = c(0.12,0.85))
+
+plot <- ggarrange(plot4,plot3,plot2,plot1,ncol=2,nrow = 2,common.legend=TRUE, legend="bottom")
+annotate_figure(plot, top = text_grob("Average Daily WSB Sentiment Compared to SPY Daily Change at Four Time Periods"))
+```
+
+
+
+#### [GitHub Link](https://github.com/ohammond1/605FinalProject)
+
+
+
+
