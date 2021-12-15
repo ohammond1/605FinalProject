@@ -4,7 +4,7 @@
 git clone https://github.com/ohammond1/605FinalProject.git
 
 ### Running CHTC Code
-All of the code to run code on the chtc code is included in the chtc_code folder. It can be created into a tar, uploaded to chtc, and run. To run the parallel jobs use
+All of the code to run code on the chtc code is included in the projectCHTC.tar.gz and can be run by untaring and submitted with a DAG. To run the parallel jobs use
 ```
 condor_dagman wsb.dag
 ```

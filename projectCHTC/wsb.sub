@@ -1,0 +1,18 @@
+universe = vanilla
+log    =    log/wsb-chtc_$(Cluster)_$(Process).log
+error  =  error/wsb-chtc_$(Cluster)_$(Process).err
+output = output/wsb-chtc_$(Cluster)_$(Process).out
+
+executable = ./wsb_main.sh
+
+arguments = $(fname)
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = http://proxy.chtc.wisc.edu/SQUID/chtc/R402.tar.gz, packages_dplyr_lub_sentr.tar.gz, SentimentCode.R
+
+request_cpus = 1
+request_memory = 6GB
+request_disk = 1.5GB
+
+queue fname from file_list.txt
