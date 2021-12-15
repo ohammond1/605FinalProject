@@ -5,7 +5,7 @@ date: "12/15/2021"
 output: html_document
 ---
 
-### Overview
+#### Overview
 
 [WallStreetBets](https://www.reddit.com/r/wallstreetbets/), a subreddit on the website “Reddit,” is a casual (and often vulgar) forum for users to discuss the stock market with other amateur investors. Despite this laid-back approach to investing, the overall sentiment of the subreddit does seem influenced by the stock market. This subreddit has had an impact on the stock market as well; the beginning of the [GameStop short squeeze](https://www.google.com/url?q=https://archive.ph/20210130144720/https://www.wsj.com/articles/the-real-force-driving-the-gamestop-amc-blackberry-revolution-11611965586&sa=D&source=docs&ust=1638811083813000&usg=AOvVaw3g-nI4WeAOEJJgYNKBot75) in January 2021 has been attributed to users of r/wallstreetbets. In our project we want to investigate the daily sentiment of the WallStreetBets subreddit based on the posted comments each day. We analyzed the sentiment of the subreddit from February 19th, 2019 until February 16th, 2021. After finding the daily sentiment of the subreddit we compared it to the performance of $SPY, a index fund that tracks with the S&P 500.  Unfortunately, we did not find any correlation between the daily changes of SPY and the average sentiment of r/wallstreetbets.
 
