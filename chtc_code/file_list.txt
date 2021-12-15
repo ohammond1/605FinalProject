@@ -14,7 +14,6 @@ wsb_chunk21.tar.gz
 wsb_chunk22.tar.gz
 wsb_chunk29.tar.gz
 wsb_chunk2.tar.gz
-wsb_chunk30.tar.gz
 wsb_chunk35.tar.gz
 wsb_chunk36.tar.gz
 wsb_chunk37.tar.gz

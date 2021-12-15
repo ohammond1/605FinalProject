@@ -7,7 +7,7 @@ output: html_document
 
 ### Overview
 
-[WallStreetBets](https://www.reddit.com/r/wallstreetbets/), a subreddit on the website “Reddit,” is a casual (and often vulgar) forum for users to discuss the stock market with other amateur investors. This subreddit has had a minor impact on the stock market as well; the beginning of the [GameStop short squeeze](https://www.google.com/url?q=https://archive.ph/20210130144720/https://www.wsj.com/articles/the-real-force-driving-the-gamestop-amc-blackberry-revolution-11611965586&sa=D&source=docs&ust=1638811083813000&usg=AOvVaw3g-nI4WeAOEJJgYNKBot75) in January 2021 has been attributed to users of r/wallstreetbets. In our project we calculated the sentiment of the WallStreetBets subreddit based on the posted comments each day. After finding the daily sentiment, we compared it to the performance of $SPY (a fund that includes the same 500 stocks on the S&P 500 in the same proportions as the S&P) to see if there is a relationship between the subreddit and the stock market. Unfortunately, we did not find any correlation between the daily changes of SPY and the average sentiment of r/wallstreetbets.
+[WallStreetBets](https://www.reddit.com/r/wallstreetbets/), a subreddit on the website “Reddit,” is a casual forum to discuss the stock market with other amateur investors. This subreddit has had a minor impact on the stock market as well; the beginning of the [GameStop short squeeze](https://www.google.com/url?q=https://archive.ph/20210130144720/https://www.wsj.com/articles/the-real-force-driving-the-gamestop-amc-blackberry-revolution-11611965586&sa=D&source=docs&ust=1638811083813000&usg=AOvVaw3g-nI4WeAOEJJgYNKBot75) in January 2021 has been attributed to users of r/wallstreetbets. In our project we investigate if there is relationship between the average daily sentiment of the WallStreetBets subreddit and the index fund \$SPY (a fund that mirrors the 500 stocks on the S&P 500). Unfortunately, we did not find any correlation between the daily changes of SPY and the average sentiment of r/wallstreetbets.
 
 ### Dataset
 
@@ -21,8 +21,7 @@ Our SPY historical values came from [The Wall Street Journal](https://www.wsj.co
 
 ### Preprocessing and Parallelization
 
-Due to the dataset size, we needed to use the CHTC to run parallel preprocessing and analysis jobs. We split the first dataset into 34 files of 1 million lines and the second dataset into 10 files of 1 million lines. Due to parsing issues with the original dataset, 11 chunks (~11 million comments) of the first dataset were unusable. Since bash has difficulty reading csvs containing natural language, we conducted the data splitting in Python. In total we ran 33 jobs on the CHTC, each requesting 7GB of memory and 1.5GB of disk space.
-
+We needed to use the CHTC to run parallel jobs due to the size of the dataset. We split the first dataset into 34 files of 1 million lines and the second dataset into 10 files of 1 million lines. Due to parsing issues with the original dataset, 11 chunks (~11 million comments) of the first dataset were unusable. We conducted the data splitting in Python due to it having a robust csv reader. In total we ran 33 jobs on the CHTC, each requesting 6GB of memory and 1.5GB of disk space and each took around 30 minutes to run. Most jobs require under 6GBs of memory but when requesting less one job was going over the allocated memory.
 
 ### Computation
 
@@ -35,7 +34,7 @@ We also compared the cumulative sentiment to the daily closing values of the S&P
 
 ### Results
 
-When comparing the average cumulative sentiment of the subreddit with the SPY closing value, there is a slight correlation (correlation coefficient of 0.514). Clearly, r/wallstreetbets users picked up on major peaks and drops in the market, but that's about it.
+When comparing the average cumulative sentiment of the subreddit with the SPY closing value, there is a slight correlation (correlation coefficient of 0.514). Clearly, r/wallstreetbets users picked up on major peaks and drops in the market.
 
 ```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -79,7 +78,7 @@ ggplot(combined.df, aes(x=day)) +
 
 ```
 
-Due to the parsing issues, we had some gaps over dates in our dataset. We were able to use data at four different time periods, each with its own graph below. Our results didn't indicate a strong correlation between the r/wallstreetbets comments and the S&P daily differential. There are several reasons this could be the case: 
+Due to the parsing issues, we had some gaps over dates in our dataset. We were able to use data at four different time periods, each with its own graph below. Our results didn't indicate a strong correlation between the r/wallstreetbets comments and the S&P daily differential (correlation coefficients below 0.20). There are several reasons this could be the case: 
  
 * This is an open forum on the internet where anyone can say anything they want, whether they pay attention to and/or are knowledgeable about the stock market.
 * There's plenty of sarcasm, emojis, and other slang used in comments that could've made sentiment analysis performed by a machine unreliable.
