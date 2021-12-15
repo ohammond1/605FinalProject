@@ -9,10 +9,10 @@ arguments = $(fname)
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = http://proxy.chtc.wisc.edu/SQUID/chtc/R402.tar.gz, packages_tidyverse_sentimentr.tar.gz, SentimentCode.R
+transfer_input_files = http://proxy.chtc.wisc.edu/SQUID/chtc/R402.tar.gz, packages_dplyr_lub_sentr.tar.gz, SentimentCode.R
 
 request_cpus = 1
-request_memory = 7GB
+request_memory = 6GB
 request_disk = 1.5GB
 
 queue fname from file_list.txt
