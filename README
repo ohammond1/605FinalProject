@@ -1,10 +1,3 @@
 605 Final Project investigating the sentiment of r/WallStreetBets subbreddit and comparing that to the daily change in the S&P 500 index
 
-Todo:
-- Create R to split into files
-- Move files to CHTC
-- Write R script to process individual files and get sentiment total and average by date
-- Write shell script to process combine output files from CHTC
-- Write R script to graph/correlate with index functions
-- Write Report
--
+git clone https://github.com/ohammond1/605FinalProject.git

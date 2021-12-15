@@ -5,14 +5,14 @@ output = output/wsb-chtc_$(Cluster)_$(Process).out
 
 executable = ./wsb_main.sh
 
-arguments = miniwsb.csv
+arguments = $(fname)
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = http://proxy.chtc.wisc.edu/SQUID/chtc/R402.tar.gz, packages_tidyverse_sentimentr.tar.gz, SentimentCode.R, miniwsb.csv
+transfer_input_files = http://proxy.chtc.wisc.edu/SQUID/chtc/R402.tar.gz, packages_tidyverse_sentimentr.tar.gz, SentimentCode.R
 
 request_cpus = 1
-request_memory = 1GB
-request_disk = 750MB
+request_memory = 7GB
+request_disk = 1.5GB
 
-queue
+queue fname from file_list.txt
