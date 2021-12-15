@@ -78,10 +78,7 @@ ggplot(combined.df, aes(x=day)) +
 
 ```
 
-Due to the parsing issues, we had some gaps over dates in our dataset. We were able to use data at four different time periods, each with its own graph below. Our results didn't indicate a strong correlation between the r/wallstreetbets comments and the S&P daily differential (correlation coefficients below 0.20). There are several reasons this could be the case: 
- 
-* This is an open forum on the internet where anyone can say anything they want, whether they pay attention to and/or are knowledgeable about the stock market.
-* There's plenty of sarcasm, emojis, and other slang used in comments that could've made sentiment analysis performed by a machine unreliable.
+Due to the parsing issues, we had some gaps over dates in our dataset but were able to compare data at four different time periods. We found no strong correlation between the r/wallstreetbets comments and the S&P daily differential (correlation coefficients below 0.20).
 
 ```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
 plot1 <- ggplot(combined.df, aes(x=day)) +
@@ -131,6 +128,9 @@ plot <- ggarrange(plot4,plot3,plot2,plot1,ncol=2,nrow = 2,common.legend=TRUE, le
 annotate_figure(plot, top = text_grob("Average Daily WSB Sentiment Compared to SPY Daily Change at Four Time Periods"))
 ```
 
+### Conclusion
+
+Our analysis doesn't point to any meaningful relationship between r/wsb sentiment and the stock market. This may simply be because reddit is an open forum on the internet where anyone can say anything they want. The abundance of sarcasm, emojis, and other slang in the comments also could've made sentiment analysis performed by a machine unreliable. Future work to make this analysis stronger could include conducting sentiment analysis using a homemade dictionary with slang (and associated sentiment) specific to this subreddit.
 
 
 #### [GitHub Link](https://github.com/ohammond1/605FinalProject)
